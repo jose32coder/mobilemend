@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './login.css'
+import { Link } from 'react-router-dom';
 
 export const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -11,7 +12,7 @@ export const Login = () => {
 
   return (
     <div className="w-full min-h-screen bg-slate-100 flex">
-        <div className="w-full md:w-2/4 bg-white px-12 sm:px-32 md:px-10 lg:px-20 xl:px-32 flex flex-col justify-center">
+        <div className="w-full md:w-2/4 py-12 bg-white px-12 sm:px-32 md:px-10 lg:px-20 xl:px-32 flex flex-col justify-center">
             <div className="flex flex-col items-center justify-center gap-4 mb-5">
                 <div className=''>
                     <span><i className="fa-solid fa-mobile"></i></span>
@@ -96,16 +97,16 @@ export const Login = () => {
                 </div>
             </div>
 
-            <div className="mb-4 flex items-center justify-between">
-                <label className="block text-gray-700 text-sm font-bold cursor-pointer">
+            <div className="mb-2 flex items-center justify-between">
+                <label className="decoration-gray-950 font-bold text-sm text-gray-950 hover:text-gray-500">
                     <input type="checkbox" className="mr-2 leading-tight cursor-pointer" />
                     Recordarme
                 </label>
-                <a href="#" className=" decoration-gray-950 font-bold text-sm text-gray-950 hover:text-gray-500">
+                <a href="#" className="decoration-gray-950 font-bold text-sm text-gray-950 hover:text-gray-500">
                     Olvidé mi contraseña
                 </a>
             </div>
-            
+            <Link to={'/registro'} className='mb-4 flex justify-start cursor-pointer decoration-gray-950 font-bold text-sm text-gray-950 hover:text-gray-500'>Registrate aquí</Link>
             <button 
             type="submit" 
             className="bg-gray-950 hover:hoverbg transition text-white font-bold py-2 px-4 rounded w-full focus:outline-none focus:shadow-outline"

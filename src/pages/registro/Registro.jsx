@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { Link, useNavigate } from 'react-router-dom';
 import "./registro.css";
 import { registerUser } from "../../firebase/register.js"; // Asegúrate de importar la función de registro
 import { auth, db, doc, googleProvider, signInWithPopup, setDoc, getDoc } from "../../firebase/config.js";
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.css';
+import withReactContent from 'sweetalert2-react-content'
+
 
 export const Registro = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,8 +17,9 @@ export const Registro = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [telephone, setTelephone] = useState("");
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+
+  const navigate = useNavigate();
+  const Alert = withReactContent(Swal)
 
 
   const handleRegistro = async (e) => {
@@ -33,45 +39,78 @@ export const Registro = () => {
       console.log("Usuario registrado correctamente:", user);
 
       // Aquí podrías redirigir al usuario a otra página o mostrar un mensaje de éxito
-      setSuccessMessage('Usuario registrado correctamente');
+      
+      await Alert.fire({
+        icon: 'success',
+        title: '¡Registro exitoso!',
+        text: 'El usuario ha sido registrado correctamente.',
+        timer: 5000,
+      });
+      setTimeout(() => {
+        navigate('/dashboard');  
+      }, 1000);
+
     } catch (error) {
-        // Manejo de errores específicos
+        // Manejo de errores
         if (error.code === 'auth/email-already-in-use') {
-          setErrorMessage("El correo electrónico ya está en uso");
+            await Alert.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: 'El correo electrónico ya está en uso. Por favor, usa otro correo electrónico.',
+                timer: 5000
+            });
         } else {
-          setErrorMessage("Error durante el registro: " + error.message);
-        } 
-    }
+            await Alert.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: 'Ha ocurrido un error durante el registro: ' + error.message,
+                timer: 5000
+            });
+        }
+      }
+    
   };
 
 //   nueva funcion para iniciar con google
-
 const handleGoogleSignIn = async () => {
-    try {
-        
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
 
-      // Verificar si el usuario ya existe en Firestore
-      const userDocRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
+    const userDocRef = doc(db, 'singUp', user.uid);
+    const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists()) {
-        // Si el usuario no existe, crear un nuevo documento en Firestore
-        await setDoc(userDocRef, {
-          firstName: user.displayName.split(" ")[0],
-          lastName: user.displayName.split(" ")[1],
-          email: user.email,
-          telephone: '', // Puedes pedir al usuario que complete esta información después
-        });
-      }
-
-      setSuccessMessage('Usuario autenticado con Google');
-    } catch (error) {
-      console.error("Error durante la autenticación con Google:", error);
-      setErrorMessage("Error durante la autenticación con Google: " + error.message);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        firstName: user.displayName.split(" ")[0],
+        lastName: user.displayName.split(" ")[1],
+        email: user.email,
+        telephone: '',
+      });
     }
-  };
+    setTimeout(() => {
+        navigate('/dashboard');  
+    }, 1000);
+
+} catch (error) {
+    // Manejo de errores
+    if (error.code === 'auth/email-already-in-use') {
+        await Alert.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'El correo electrónico ya está en uso. Por favor, usa otro correo electrónico.',
+            timer: 3000, // Tiempo en milisegundos (3 segundos)
+        });
+    } else {
+        await Alert.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'Ha ocurrido un error durante el registro: ' + error.message,
+            timer: 3000,
+        });
+    }
+  }
+};
 
 
   const togglePasswordVisibility = () => {
@@ -85,7 +124,7 @@ const handleGoogleSignIn = async () => {
     <form action="" onSubmit={handleRegistro}>
       <div className="w-full min-h-screen bg-slate-100 flex">
         <div className="w-2/4 hidden md:block background"></div>
-        <div className="w-full md:w-2/4 bg-white px-12 sm:px-20 md:px-10 lg:px-20 xl:px-25 flex flex-col justify-center">
+        <div className="w-full md:w-2/4 bg-white px-12 py-12 sm:px-20 md:px-10 lg:px-20 xl:px-25 flex flex-col justify-center">
           <div className="flex flex-col items-center justify-center gap-4 mb-5">
             <div className="">
               <span>
@@ -308,15 +347,14 @@ const handleGoogleSignIn = async () => {
               </span>
             </div>
           </div>
+          <Link to={'/login'} className='mb-4 flex justify-start cursor-pointer decoration-gray-950 font-bold text-sm text-gray-950 hover:text-gray-500'>Iniciar Sesión</Link>
 
           <button
             type="submit"
             className="bg-gray-950 hover:hoverbg transition text-white font-bold py-2 px-4 rounded w-full focus:outline-none focus:shadow-outline"
           >
-            Iniciar sesión
+            Registrarse
           </button>
-          <div className="text-red-500">{errorMessage}</div>
-          <div className="text-green-700">{successMessage}</div>
         </div>
       </div>
     </form>
