@@ -116,7 +116,7 @@ export const Login = () => {
         </div>
         <div className="w-2/4 hidden md:block background"></div>
     </div>
-  )
+)
 
-  
+
 }
