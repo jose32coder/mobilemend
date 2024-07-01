@@ -8,3 +8,7 @@ input[type="password"]::-ms-reveal,
 input[type="password"]::-webkit-reveal {
     display: none !important;
 }
+
+.shadowNavbarRight {
+  box-shadow: 3px 0 10px -3px rgba(0, 0, 0, 0.3);
+}
